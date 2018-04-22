@@ -1,18 +1,24 @@
+//PROG 219, HW-3 Rain
+//Written by Janusz Topor-Madry and Doug Cottrill
+//Last Modified 21 Apr 2018
+//A game using the Crafty.js system
+
+// Some additions to the game:
+// Expanded screen height to 500, used left and right-facing player sprite, used rain sprite,
+// put background image, added music (non-repeating), 
 var screenWidth = 800;
 var screenHeight = 500;
 var hitCounter = 0;
+var playerRight = true;
+var lastPlayer1X = 20;
 
 Crafty.init(screenWidth,screenHeight, document.getElementById('game'));
 
-Crafty.sprite("facio_sprite.gif", {facio:[237,0,30,55], facioLeft:[174,71,30,55], raindrop:[143,74,4,10]});
+Crafty.sprite("facio_sprite.gif", {facio:[237,0,30,55], facioLeft:[174,68,30,55], raindrop:[143,74,4,10]});
 Crafty.e('Floor, 2D, Canvas, Solid, Color, Collision')
-  .attr({x: 0, y: 480, w: screenWidth * 2, h: 20})
-  .color('lightblue');
-/*
-Crafty.e('ScreenSide, 2D, Canvas, Solid, Color, Collision')
   .attr({x: 0, y: 480, w: screenWidth, h: 20})
   .color('lightblue');
-*/
+
 var player1 = Crafty.e('Player, 2D, Canvas, Solid, Twoway, Gravity, Collision, facio')
   .attr({x: 20, y: 460, w: 30, h: 55})
   .twoway(150)
@@ -36,7 +42,6 @@ var hitText = Crafty.e('2D, DOM, Text')
   });
 
 hitText.text('Hit:&nbsp;' + hitCounter);
-
 hitText.textFont({
   size: '30px',
   weight: 'bold'
@@ -65,7 +70,7 @@ function drop()
     hitText.text('Hit:&nbsp;' + hitCounter);
   })
   .bind("EnterFrame", function() {
-    if (this.y > (screenHeight-30))
+    if (this.y > (screenHeight-40))
       this.destroy();   // destroy object when near floor
   });
 }
@@ -86,7 +91,18 @@ function pause()
 
 Crafty.bind("EnterFrame", function(){
 //(debug) document.getElementById("message").innerHTML = Crafty.frame();
-
-if (Crafty.frame() % 4 == 0)
-drop();
+  
+  if (player1.x < lastPlayer1X && playerRight) {
+      player1.sprite('facioLeft');   // change to left-facing sprite
+      playerRight = ! playerRight;
+  }
+  else {
+    if (player1.x > lastPlayer1X && ! playerRight) {
+      player1.sprite('facio');   // change to right-facing sprite
+      playerRight = ! playerRight;
+    }
+  }
+  lastPlayer1X = player1.x
+  if (Crafty.frame() % 4 == 0)
+    drop();
 });
